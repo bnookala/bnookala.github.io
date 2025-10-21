@@ -24,7 +24,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "25"
-          cache: "yarn"
       - name: Install, build, and upload your site
         uses: withastro/action@v3
         with:
