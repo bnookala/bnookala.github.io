@@ -33,6 +33,10 @@ jobs:
       - name: Sync Astro types
         run: yarn astro sync
 
+      - name: Type check (non-blocking)
+        run: yarn astro check || echo "Type checking had warnings/errors but continuing build"
+        continue-on-error: true
+
       - name: Build with Astro
         run: yarn build
 
