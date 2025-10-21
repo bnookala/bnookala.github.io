@@ -30,6 +30,9 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
+      - name: Sync Astro types
+        run: yarn astro sync
+
       - name: Build with Astro
         run: yarn build
 
