@@ -1,7 +1,7 @@
 ---
 author: Bhargav Nookala
 pubDatetime: 2025-10-19T00:00:00Z
-modDatetime: 2025-10-19T00:00:00Z
+modDatetime: 2025-10-21T00:00:00Z
 title: Amongst New Things
 slug: amongst-new-things
 featured: true
@@ -14,7 +14,7 @@ tags:
 description: A behind-the-scenes look at how Claude Code and I built this blog together, from empty repository to published site.
 ---
 
-> **Author's Note (Bhargav):** Occasionally, there are moments when I feel that I'm not as certain if I'm keeping up with the pace of AI assisted development. When GPT was first released to the general public (via ChatGPT), it was a fun novelty. People were quick to point out barriers of capability and knowledge, but just as quickly as these were pointed out, many of these barriers were overcome, either via improvements to the foundation models themselves, or via extending the ecosystem. My hope is that via documenting what I'm learning by using AI as a collaborator, I can feel less stuck in the mud, and make sense of how to utilize these tools.
+> **Author's Note (Bhargav):** Occasionally, there are moments when I feel that I'm not as certain if I'm keeping up with the pace of AI assisted development. When GPT was first released to the general public (via ChatGPT), it was a fun novelty. People were quick to point out barriers of capability and knowledge, but just as quickly as these were pointed out, many of these barriers were overcome, either via improvements to the foundation models themselves, or via extending the ecosystem via tools MCP servers or extensions. My hope is that via documenting what I'm learning by using AI as a collaborator, I can feel less stuck in the mud, and make sense of how to utilize these tools.
 
 This post documents the actual process of building this blog. Not a tutorial written after the fact, but the real conversation between Claude (the AI coding assistant) and myself as we went from an empty GitHub repository to a functioning blog.
 
@@ -177,3 +177,84 @@ This wasn't a perfectly planned project. It was exploratory, iterative, and conv
 ## Closing Thoughts
 
 > **Author's Note (Bhargav):** Despite being a software engineer again, there's a number of unknowns to me on how best to leverage these tools. I hope by documenting how I'm using these tools on a day to day basis, I can help others learn from my experiences and make better use of these tools themselves 🫡.
+
+---
+
+## Addendum: The Deployment Saga (October 21, 2025)
+
+**Claude's reflection:** If you've read this far, you might think we had a smooth journey from empty repository to published blog. The truth is more nuanced — everything worked perfectly *locally*. But deployment to GitHub Pages - a different story.
+
+### The Local vs. Production Gap
+
+> **Author's Note (Bhargav):** This is where I want to capture something important about AI-assisted development in 2025: Claude was incredibly helpful with the development workflow, but when things broke in CI/CD, we hit the limits of what the AI could do autonomously.
+
+**The symptoms:**
+- Local builds: ✅ Perfect
+- GitHub Actions builds: ❌ Catastrophic failure
+
+**Claude:** I suggested several fixes based on the error messages:
+1. Converting relative imports (`../`) to path aliases (`@/`) — this was necessary and correct
+2. Updating TypeScript configurations
+3. Adjusting the Astro configuration
+
+All of these changes were valid and improved the codebase. But they didn't solve the deployment issue.
+
+### What Actually Worked
+
+> **Author's Note (Bhargav):** Eventually, through trial and error (mostly error), I had to step in and update the GitHub Actions workflow myself. Here's what finally made it work:
+
+**The solution involved two key changes:**
+
+1. **Updating the GitHub Actions versions** in `.github/workflows/deploy.yml`:
+   - `actions/checkout@v4` → `actions/checkout@v5`
+   - `actions/setup-node@v4` → `actions/setup-node@v6`
+   - Updated to use `withastro/action@v4`
+   - Bumped Node.js from version 20 to version 25
+
+2. **Adding a cache-busting build command** in `package.json`:
+   ```json
+   "nocache-build": "yarn cache clean && yarn run build"
+   ```
+
+The workflow now explicitly calls:
+```yaml
+build-cmd: yarn run nocache-build
+```
+
+### The Mystery of the Missing Cache
+
+**Claude's reflection:** Here's the interesting part — the `withastro/action@v4` still tries to search for a cache. The difference is that now it *continues forward* when the cache isn't found, rather than failing entirely.
+
+We still don't know *why* the cache wasn't found in the first place. Some possibilities:
+- GitHub Actions runner environment differences
+- Cache key mismatches between workflow runs
+- Something in the Astro + Yarn + GitHub Pages interaction
+- Quantum entanglement (probably not this one)
+
+**Bhargav:** The pragmatic solution was to force a cache clean before every build. It's not the most elegant solution, but it works...?
+
+### Lessons from the Deployment Trenches
+
+**What Claude couldn't do (yet):**
+- Directly access GitHub Actions logs and execution environment
+- Test changes in the actual CI/CD environment
+- Understand the subtle differences between local and remote build contexts
+
+**What required human intervention:**
+- Updating the GitHub Actions workflow file versions
+- Creating the cache-busting build command
+- Testing and verifying the deployment actually worked
+
+**What we learned together:**
+- AI is excellent at code generation and refactoring
+- AI can suggest architectural improvements based on error messages
+- But debugging deployment pipelines still requires human trial-and-error (unless I'm missing something important!)
+- Documentation of these "silly things" matters — future you (or future someone) will thank you
+
+### The Current State
+
+As of October 21, 2025, the blog deploys successfully to GitHub Pages.
+
+**Claude:** Is it perfect? No. Does it work? Yes. And sometimes in engineering, "works reliably" beats "theoretically optimal."
+
+> **Author's Note (Bhargav):** This addendum captures something important about the current state of AI-assisted development: the LLM is an incredibly capable collaborator for the code itself, but when you hit infrastructure and deployment issues, you still need human intuition, persistence, and the willingness (or stubbornness?) to try increasingly desperate solutions until something works...ish.
