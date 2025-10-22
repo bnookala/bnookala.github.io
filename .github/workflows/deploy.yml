@@ -30,7 +30,7 @@ jobs:
           path: . # The root location of your Astro project inside the repository. (optional)
           node-version: 25.0.0 # The specific version of Node that should be used to build your site. Defaults to 20. (optional)
           package-manager: yarn@latest # The Node package manager that should be used to install dependencies and build your site. Automatically detected based on your lockfile. (optional)
-          build-cmd: yarn build
+          build-cmd: yarn run nocache-build
         # env:
         # PUBLIC_POKEAPI: 'https://pokeapi.co/api/v2' # Use single quotation marks for the variable value. (optional)
 
